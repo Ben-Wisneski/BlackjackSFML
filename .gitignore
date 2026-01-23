@@ -1,0 +1,11 @@
+# Ignore the executable and compiled objects
+*.exe
+*.o
+*.obj
+bin/
+obj/
+*.dll
+.vscode/
+.vs/
+out/
+build/
