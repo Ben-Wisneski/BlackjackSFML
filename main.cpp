@@ -3,7 +3,7 @@
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Practice");
+    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Blackjack");
     window.setFramerateLimit(60);
     sf::RectangleShape shape(sf::Vector2f(50.f, 150.f));
     sf::RectangleShape bro(sf::Vector2f(50.f, 150.f));
@@ -19,31 +19,16 @@ int main()
             else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
             {
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
-                {    
-                    std::cout<<"esc pressed\n";
                     window.close();
-                }
-                else if(keyPressed-> scancode == sf::Keyboard::Scancode::W)
-                {
-                    std::cout<<"W pressed!\n";
+                
+                if(keyPressed-> scancode == sf::Keyboard::Scancode::W)
                     shape.move({0.f, -100.f});
-                    
-                }
                 else if(keyPressed-> scancode == sf::Keyboard::Scancode::A)
-                {
-                    std::cout<<"A pressed!\n";
                     shape.move({-100.f, 0.f});
-                }
-                else if(keyPressed-> scancode == sf::Keyboard::Scancode::S)
-                {   
-                    std::cout<<"S pressed!\n";   
+                else if(keyPressed-> scancode == sf::Keyboard::Scancode::S) 
                     shape.move({0.f, 100.f});
-                }
-                else if(keyPressed-> scancode==sf::Keyboard::Scancode::D)
-                {
-                    std::cout<<"D pressed!\n";  
+                else if(keyPressed-> scancode==sf::Keyboard::Scancode::D)  
                     shape.move({100.f, 0.f});
-                }
 
                 //for the blue shape movement
                 if(keyPressed-> scancode == sf::Keyboard::Scancode::Up)
