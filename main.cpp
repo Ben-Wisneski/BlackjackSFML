@@ -1,50 +1,61 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+const int CARD_HEIGHT = 42;
+const int CARD_WIDTH = 31;
+const int NUMBER_CARDS = 52;
+
+std::vector<sf::Sprite> deck;
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Blackjack");
     window.setFramerateLimit(60);
-    sf::RectangleShape shape(sf::Vector2f(50.f, 150.f));
-    sf::RectangleShape bro(sf::Vector2f(50.f, 150.f));
-    bro.setFillColor(sf::Color::Blue);
-    bro.move({600.f,0});
+
+
+    /*
+        Creation of the deck of cards
+        1. loads the texture from A-10_Cards.png
+        2. Makes a std::vector<sf::Sprite> and stores an individual rectangle for all the cards
+        note: can control the position of each card with .setPosition
+    */
+    sf::Texture cardTexture;
+    if(!cardTexture.loadFromFile("spriteSheet.png")){
+        sf::err() << "Failed to load card texture!" << std::endl;
+        return -1;
+    }
+    
+    sf::Vector2i size(CARD_WIDTH, CARD_HEIGHT);
+    sf::Sprite cardSprite(cardTexture);
+    for(int i = 0; i < NUMBER_CARDS; i++){
+        sf::Vector2i position(i*CARD_WIDTH, 0);
+        cardSprite.setTextureRect(sf::IntRect(position, size));
+        cardSprite.setScale(sf::Vector2f(4.f,4.f));
+        cardSprite.setPosition(sf::Vector2f(i*CARD_WIDTH-2,0));
+        deck.push_back(cardSprite);
+    }
+
+
+
+
     while (window.isOpen())
     {
         while (const std::optional event = window.pollEvent())
         {
             if (event->is<sf::Event::Closed>())
-                window.close();
-            //Used the getIf function built into sf::Event to check if escape key is pressed and if it is, closes the window
+                return -1;
             else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
             {
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
-                    window.close();
-                
-                if(keyPressed-> scancode == sf::Keyboard::Scancode::W)
-                    shape.move({0.f, -100.f});
-                else if(keyPressed-> scancode == sf::Keyboard::Scancode::A)
-                    shape.move({-100.f, 0.f});
-                else if(keyPressed-> scancode == sf::Keyboard::Scancode::S) 
-                    shape.move({0.f, 100.f});
-                else if(keyPressed-> scancode==sf::Keyboard::Scancode::D)  
-                    shape.move({100.f, 0.f});
-
-                //for the blue shape movement
-                if(keyPressed-> scancode == sf::Keyboard::Scancode::Up)
-                    bro.move({0.f, -100.f});
-                else if(keyPressed-> scancode == sf::Keyboard::Scancode::Left)
-                    bro.move({-100.f, 0.f});
-                else if(keyPressed-> scancode == sf::Keyboard::Scancode::Down)   
-                    bro.move({0.f, 100.f});
-                else if(keyPressed-> scancode==sf::Keyboard::Scancode::Right)
-                    bro.move({100.f, 0.f});
+                    return -1;
             }
             
         }
-        window.clear();
-        window.draw(shape);
-        window.draw(bro);
+        window.clear(sf::Color::White);
+        for(int i = 0; i < NUMBER_CARDS; i++){
+            window.draw(deck[i]);
+        }
         window.display();
+        
     }
 }
