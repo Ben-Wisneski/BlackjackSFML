@@ -1,42 +1,59 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <String>
+#include <windows.h>
 
 const int CARD_HEIGHT = 42;
 const int CARD_WIDTH = 31;
 const int NUMBER_CARDS = 52;
 
-std::vector<sf::Sprite> deck;
+class Card{
+    private:
+    sf::Sprite* sprite;
+    int suit, value;
+    public:
+    Card(sf::Texture& texture, int s, int v, float scale){
+        sprite = new sf::Sprite(texture);
+        sprite->setTextureRect(sf::IntRect(sf::Vector2i(((s * 13) + (v - 1))*CARD_WIDTH,0), sf::Vector2i(CARD_WIDTH, CARD_HEIGHT)));
+        sprite->setScale(sf::Vector2f(scale,scale));
+        suit = s;
+        value = v;
+    }
+    int getSuit(){ return suit; }
+    int getValue(){ return value; }
+    sf::Sprite& getSprite() { return *sprite; }
+    void setPosition(int x, int y){
+        sf::Vector2f position(x,y);
+        sprite->setPosition(position);
+    }
+};
+
+std::vector<Card> deck;
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Blackjack");
     window.setFramerateLimit(60);
-
-
     /*
-        Creation of the deck of cards
-        1. loads the texture from A-10_Cards.png
+        Creation of the deck of cards with the card class
+        1. loads the texture from spriteSheet.png
         2. Makes a std::vector<sf::Sprite> and stores an individual rectangle for all the cards
-        note: can control the position of each card with .setPosition
     */
     sf::Texture cardTexture;
     if(!cardTexture.loadFromFile("spriteSheet.png")){
         sf::err() << "Failed to load card texture!" << std::endl;
         return -1;
     }
-    
     sf::Vector2i size(CARD_WIDTH, CARD_HEIGHT);
-    sf::Sprite cardSprite(cardTexture);
-    for(int i = 0; i < NUMBER_CARDS; i++){
-        sf::Vector2i position(i*CARD_WIDTH, 0);
-        cardSprite.setTextureRect(sf::IntRect(position, size));
-        cardSprite.setScale(sf::Vector2f(4.f,4.f));
-        cardSprite.setPosition(sf::Vector2f(i*CARD_WIDTH-2,0));
-        deck.push_back(cardSprite);
+    int position = 0;
+    for(int suit = 0; suit < 4; suit++){
+        for(int value = 1; value <= 13; value++){
+            Card card(cardTexture, suit, value, 4);
+            card.setPosition(position*CARD_WIDTH-2,0);
+            deck.push_back(card);
+            position++;
+        } 
     }
-
-
-
 
     while (window.isOpen())
     {
@@ -48,12 +65,16 @@ int main()
             {
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
                     return -1;
+                else if(keyPressed->scancode == sf::Keyboard::Scancode::S){
+                    deck[22].setPosition(300,300);
+                }
             }
             
         }
-        window.clear(sf::Color::White);
+        
+        window.clear(sf::Color::Blue);
         for(int i = 0; i < NUMBER_CARDS; i++){
-            window.draw(deck[i]);
+            window.draw(deck[i].getSprite());
         }
         window.display();
         
