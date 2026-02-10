@@ -9,9 +9,8 @@ const int CARD_HEIGHT = 42;
 const int CARD_WIDTH = 31;
 const int NUMBER_CARDS = 52;
 enum game{startScreen, play};
-enum gameState{deal, playerTurn, dealerTurn};
-
-
+enum gameState{deal, playerTurn, dealerTurn, endScreen};
+bool playerBust{false}, playerWin{false};
 //Makes the sprites into more then only sprites. Hold suit, value and a pointer to the sprite
 class Card{
     private:
@@ -50,7 +49,6 @@ class Card{
     }
 };
 std::vector<Card> deck, playerHand, dealerHand;
-
 void shuffleDeck(std::vector<Card>& deck){
     std::random_device rd;
     std::mt19937 name(rd());
@@ -58,7 +56,7 @@ void shuffleDeck(std::vector<Card>& deck){
 }
 //Function to get the value of your hand. Accounts for aces
 int getHandValue(std::vector<Card>& hand){
-    int value, aces;
+    int value{0}, aces{0};
     for(int i = 0; i < hand.size(); i++){
         if(hand[i].getValue() >= 10){
             value += 10;
@@ -77,7 +75,6 @@ int getHandValue(std::vector<Card>& hand){
     }
     return value;
 }
-
 int main()
 {
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Blackjack");
@@ -100,9 +97,8 @@ int main()
         } 
     }
     shuffleDeck(deck);
-
     enum game setGameMode = startScreen;
-    enum gameState turn = deal;
+    enum gameState turn;
     while (window.isOpen())
     {
         while (const std::optional event = window.pollEvent())
@@ -119,6 +115,7 @@ int main()
                         //change this to mouse button left
                         if (keyPressed->scancode == sf::Keyboard::Scancode::S){
                             // puts the card into their hands and sets the positions so when drawn will end out correctly
+                            
                             for (int i = 0; i < 2; i++)
                             {
                                 playerHand.push_back(deck.back());
@@ -131,6 +128,7 @@ int main()
                             dealerHand[0].switchCardBack();
                             // Switches from start screen to play
                             setGameMode = play;
+                            turn = playerTurn;
                         }
                         break;
                     case play:
@@ -150,7 +148,10 @@ int main()
                                 }
                                 else if(keyPressed->scancode == sf::Keyboard::Scancode::S){
                                     turn = dealerTurn;
+                                    dealerHand[1].switchCardFront();
                                 }
+                                break;
+                            case dealerTurn:
                                 break;
                             
                         }
@@ -185,15 +186,47 @@ int main()
                        //draw hand
                        for(int i = 0; i < playerHand.size(); i++){
                             window.draw(playerHand[i].getSprite());
-                            
                         }
                         for(int i = 0; i < dealerHand.size(); i++){
                             window.draw(dealerHand[i].getSprite());
                         }
                         //check for the value of current hand
-                        getHandValue(playerHand);
+                        if(getHandValue(playerHand)>21){
+                            playerBust = true;
+                            turn = dealerTurn;
+                            
+                        }
                         break;
                     case dealerTurn:
+                        dealerHand[0].switchCardFront();
+                        if(playerBust){
+                            turn = endScreen;
+                        }
+                        for(int i = 0; i < playerHand.size(); i++){
+                            window.draw(playerHand[i].getSprite());
+                        }
+                        for(int i = 0; i < dealerHand.size(); i++){
+                            window.draw(dealerHand[i].getSprite());
+                        }
+                        if(getHandValue(dealerHand) > 21){
+                            playerWin = true;
+                            //turn = endScreen;
+                        }
+                        else if(getHandValue(dealerHand) < 17){
+                            dealerHand.push_back(deck.back());
+                            deck.pop_back();
+                            sf::Vector2f position = dealerHand[dealerHand.size() - 2].getPosition();
+                            dealerHand[dealerHand.size()-1].setPosition(position);
+                            dealerHand.back().move(sf::Vector2f(-50.f, 50.f));
+                        }
+                        else{
+                            //turn = endScreen;
+                            if(getHandValue(playerHand) > getHandValue(dealerHand)){
+                                playerWin = true;
+                            }
+                        }
+                        break;
+                    case endScreen:
                         break;
                 }
         }
